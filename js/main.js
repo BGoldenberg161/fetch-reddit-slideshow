@@ -1,12 +1,11 @@
 // Globals
-const body = document.querySelector('body')
+const container = document.querySelector('.container')
 const header = document.querySelector('.title')
 const button = document.querySelector('button')
 const goContainer = document.querySelector('#go')
-const title = document.querySelector('h1')
-const instructions = document.querySelector('h2')
+const jumbo = document.querySelector('.jumbotron')
 const input = document.querySelector('input')
-// const pause = time => new Promise(resolve => setTimeout(resolve, time)) //Attempt to create pause function
+let imageCounter = 0
 
 // elements to be added
 const stopButton = document.createElement('button')
@@ -25,8 +24,7 @@ document.addEventListener('DOMContentLoaded', function() {
         let requestURL = 'https://www.reddit.com/search.json?q=' + inputProper
         
         // remove title and insturctions, replace go button with stop
-        header.removeChild(title)
-        header.removeChild(instructions)
+        jumbo.style.display = 'none'
         goContainer.removeChild(button)
         goContainer.appendChild(stopButton)
 
@@ -48,13 +46,8 @@ document.addEventListener('DOMContentLoaded', function() {
     })
 
     // listen for stop button click & reset page
-    stopButton.addEventListener('click', event => {
-        // let slideShow = document.querySelector('.carousel slide')
-        // goContainer.removeChild(stopButton)
-        // header.appendChild(title)
-        // header.appendChild(instructions)
-        // goContainer.appendChild(button)
-        // body.removeChild(slideShow)
+    stopButton.addEventListener('click', () => {
+        // jumbo.style.display = 'block'
         location.reload()
     })
 })
@@ -69,58 +62,47 @@ function makeImageElement(data){
     innerSlide.classList.add('carousel-inner')
     slideShow.appendChild(innerSlide)
 
-    body.appendChild(slideShow)
+    container.appendChild(slideShow)
 
     // insert first 10 images
     for (let i = 0; i < 20; i++){
         let object = data.data.children[i]
         let image = object.data.url
-        // console.log(image)
-        // set first container to be active
-        if (i === 0) {
+        
+        // create container if image is actually image
+        // bootstrap template for carousel
+        if (image.includes('.jpg') || image.includes('.png') || image.includes('.jpeg')){
             const item = document.createElement('div')
             innerSlide.appendChild(item)
-            item.setAttribute('class', 'carousel-item active')
+            item.setAttribute('class', 'carousel-item')
             let newImage = document.createElement('img')
             newImage.setAttribute('class', 'd-block w-100')
             newImage.setAttribute('alt', '...')
-            checkBlanks(image, newImage, item)
-            // console.log(newImage)
-        } else {
-            const item = document.createElement('div')
-            innerSlide.appendChild(item)
-            item.classList.add('carousel-item')
-            let newImage = document.createElement('img')
-            newImage.setAttribute('class', 'd-block w-100')
-            newImage.setAttribute('alt', '...')
-            checkBlanks(image, newImage, item)
-            // console.log(newImage)
+            newImage.src = image
+            item.appendChild(newImage)
+            imageCounter++
         }
     } 
 }
-// check to see if image exists insert placeholder if not
-function checkBlanks(image, newImage, item) {
-    if (image.includes('.jpg') || image.includes('.png') || image.includes('.gif')){
-        newImage.src = image
-        item.appendChild(newImage)
-    } else {
-        newImage.src = 'https://picsum.photos/200/300'
-    }}
         
 // cycle classes on div containers
 function cycleImages() {
+    console.log(imageCounter)
     // should run until stop button is clicked
     let n = 0
     setInterval(function() {
         const carousel = document.querySelector('.carousel-inner').children
-        carousel[n+1].classList.value = 'carousel-item active'
-        carousel[n].classList.value = 'carousel-item'
-        n++
-        if (n === 19){
+        // if at bottom container, start at top again
+        if (n === imageCounter-1){
             n = 0
             carousel[0].classList.value = 'carousel-item active'
-            carousel[9].classList.value = 'carousel-item'
+            carousel[imageCounter-1].classList.value = 'carousel-item'
+        // else cycle active div down the list
+        } else {
+            carousel[n+1].classList.value = 'carousel-item active'
+            carousel[n].classList.value = 'carousel-item'
+            n++
         }
-    }, 1000)
+    }, 3000)
 
 }
